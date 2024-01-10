@@ -1,0 +1,96 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+ORANGE='\033[0;33m'
+NC='\033[0m' # No Color
+
+if [ $# == 1 ]; then
+	if [ $1 == "--usage" ]; then
+		echo -e "${ORANGE}Usage:Run as $ source ~/env_setup_script${NC}"
+		exit
+	elif [ $1 == "icc" ]; then
+		source /opt/intel/oneapi/setvars.sh
+		exit
+	else
+		echo -e "${RED}Failure: Invalid argument${NC}"
+		exit
+	fi
+elif [ $# != 0 ]; then
+        echo -e "${RED}Failure: Invalid arguments ${NC}"
+        echo -e "${ORANGE}Usage: $BASH_SOURCE --usage \nor \nsource $BASH_SOURCE${NC}"
+	exit
+fi
+
+
+echo -e "\nWhich DPDK environment do you wish to select>"
+echo "[1] dpdk-19.11.13"
+echo "[2] dpdk-20.11.8"
+echo -n "Enter:"
+read num
+
+if [ $num == 1 ]; then
+	export RTE_SDK=/home/nr5glab/dpdk-stable-19.11.13
+	echo -e "${ORANGE}DPDK = dpdk-19.11.13${NC}"
+elif [ $num == 2 ]; then
+	export RTE_SDK=/home/nr5glab/dpdk-stable-20.11.8
+	echo -e "${ORANGE}DPDK = dpdk-20.11.8${NC}"
+else
+	echo "Wrong option selected! Retry"
+fi
+
+echo -e "\nSelect the phy location."
+echo "[1] phy" 
+echo "[2] OAI_RU/phy"
+echo "[3] VVDN_RU/phy"
+echo "[4] oran_f_release/o-du-phy"
+echo "[5] develop-gNB/phy"
+echo "[6] E2_VVDN/phy"
+echo -n "Enter:"
+read phy_num
+
+if [ $phy_num == 1 ]; then
+	export XRAN_DIR=/home/nr5glab/phy/fhi_lib
+	echo -e "${ORANGE}XRAN_DIR = phy${NC}"
+elif [ $phy_num == 2 ]; then
+	export XRAN_DIR=/home/nr5glab/OAI_RU/phy/fhi_lib
+	echo -e "${ORANGE}XRAN_DIR = OAI_RU/phy${NC}"
+elif [ $phy_num == 3 ]; then
+	export XRAN_DIR=/home/nr5glab/VVDN_RU/phy/fhi_lib
+	echo -e "${ORANGE}XRAN_DIR = VVDN_RU/phy${NC}"
+elif [ $phy_num == 4 ]; then
+	export XRAN_DIR=/home/nr5glab/oran_f_release/o-du-phy/fhi_lib
+	echo -e "${ORANGE}XRAN_DIR = oran_f_release/o-du-phy${NC}"
+	export WIRELESS_SDK_TOOLCHAIN=icc
+elif [ $phy_num == 5 ]; then
+	export XRAN_DIR=/home/nr5glab/develop-gNB/phy/fhi_lib
+	echo -e "${orange}xran_dir = develop-gnb/phy${nc}"
+elif [ $phy_num == 6 ]; then
+	export XRAN_DIR=/home/nr5glab/E2_VVDN/phy/fhi_lib
+	echo -e "${orange}xran_dir = E2_VVDN/phy${nc}"
+else
+	echo "Wrong option selected! Retry"
+fi
+
+echo -e "\nDo you wish to source icc"
+echo -e "[1] Yes \n[2] No"
+echo -n "Enter:"
+read icc_num
+
+if [ $icc_num == 1 ]; then
+	source /opt/intel/oneapi/setvars.sh
+elif [ $icc_num == 2 ]; then
+	echo -e "\n${ORANGE}OK!${NC}"
+else
+	echo -e "\nInvalid option!"
+fi
+
+# Default environment variables
+export RTE_TARGET=x86_64-native-linuxapp-gcc
+export XRAN_LIB_DIR=$XRAN_DIR/lib/build
+export DPDK_DIR=${RTE_SDK}/${RTE_TARGET}/include
+
+echo -e "\n---------------- Setting environment variables as follows ----------------------"
+printf "${ORANGE}RTE_SDK = %s \nRTE_TARGET = %s \nXRAN_DIR = %s \nXRAN_LIB_DIR = %s \nDPDK_DIR = %s${NC}\n" "$RTE_SDK" "$RTE_TARGET" "$XRAN_DIR" "$XRAN_LIB_DIR" "$DPDK_DIR"
+echo -e "---------------------- Environment variables set -------------------------------\n"
+
